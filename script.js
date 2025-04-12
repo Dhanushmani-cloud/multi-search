@@ -1,0 +1,37 @@
+const express = require('express');
+const axios = require('axios');
+const cors = require('cors');
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// Replace with actual API endpoints and keys
+const platforms = [
+  { name: "Platform 1", url: "https://api.platform1.com/search", apiKey: "API_KEY1" },
+  { name: "Platform 2", url: "https://api.platform2.com/search", apiKey: "API_KEY2" },
+  { name: "Platform 3", url: "https://api.platform3.com/search", apiKey: "API_KEY3" },
+];
+
+// Endpoint for multi-AI search
+app.post('/search', async (req, res) => {
+  const { query } = req.body;
+  const results = {};
+
+  for (const platform of platforms) {
+    try {
+      const response = await axios.get(`${platform.url}?q=${encodeURIComponent(query)}&api_key=${platform.apiKey}`);
+      results[platform.name] = response.data; // Adjust based on API response format
+    } catch (error) {
+      results[platform.name] = `Error: ${error.message}`;
+    }
+  }
+
+  res.json(results);
+});
+
+// Start the server
+const PORT = 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
